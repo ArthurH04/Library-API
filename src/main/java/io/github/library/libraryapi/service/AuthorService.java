@@ -19,6 +19,8 @@ public class AuthorService {
 	public Author save(Author author) {
 		return authorRepository.save(author);
 	}
+
+	public void delete(Author author) {authorRepository.delete(author);}
 	
 	public Optional<Author> findById(UUID id) {
 		return authorRepository.findById(id);

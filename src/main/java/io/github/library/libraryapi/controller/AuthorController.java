@@ -5,12 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import io.github.library.libraryapi.controller.DTO.AuthorDTO;
@@ -18,7 +13,7 @@ import io.github.library.libraryapi.model.Author;
 import io.github.library.libraryapi.service.AuthorService;
 
 @RestController
-@RequestMapping("autores")
+@RequestMapping("authors")
 public class AuthorController {
 	AuthorService authorService;
 
@@ -27,8 +22,8 @@ public class AuthorController {
 	}
 
 	@PostMapping
-	public ResponseEntity<Void> salvar(@RequestBody AuthorDTO autor) {
-		Author authorEntity = autor.mapearParaAutor();
+	public ResponseEntity<Void> save(@RequestBody AuthorDTO author) {
+		Author authorEntity = author.mapToAuthor();
 		authorService.save(authorEntity);
 
 		URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
@@ -47,5 +42,16 @@ public class AuthorController {
 			return ResponseEntity.ok(dto);
 		}
 		return ResponseEntity.notFound().build();
+	}
+
+	@DeleteMapping("{id}")
+	public ResponseEntity<Void> delete(@PathVariable("id") String id) {
+		var authorId = UUID.fromString(id);
+		Optional<Author> authorOptional = authorService.findById(authorId);
+		if (authorOptional.isEmpty()) {
+			return ResponseEntity.notFound().build();
+		}
+		authorService.delete(authorOptional.get());
+		return ResponseEntity.noContent().build();
 	}
 }

@@ -15,41 +15,41 @@ import io.github.library.libraryapi.model.BookGenre;
 import io.github.library.libraryapi.model.Book;
 
 /*
- * @see LivroRepositoryTest
+ * @see BookRepositoryTest
  * 
  */
 
 @Repository
 public interface BookRepository extends JpaRepository<Book, UUID> {
-	List<Book> findByAuthor(Author autor);
+	List<Book> findByAuthor(Author author);
 
 	List<Book> findByTitleContainingIgnoreCase(String title);
 
-	@Query("SELECT l from Book as l order by l.title, l.price")
+	@Query("SELECT b from Book as b order by b.title, b.price")
 	List<Book> listAll();
 	
-	@Query("SELECT a from Book l JOIN l.author a")
+	@Query("SELECT a from Book b JOIN b.author a")
 	List<Author> listAuthors();
 	
 	@Query("""
-			SELECT l.genre, l.Book
-			FROM Book l
-			JOIN l.author a
+			SELECT b.genre
+			FROM Book b
+			JOIN b.author a
 			WHERE a.nationality = 'Brazilian'
-			ORDER BY l.genre
+			ORDER BY b.genre
 			""")
 	List<String> listGenresBrazilianAuthors();
 	
-	@Query("select l from Book l where l.genre = :genre order by :paramOrder")
+	@Query("select b from Book b where b.genre = :genre order by :paramOrder")
 	List<Book> findByGenreParam(@Param("genre") BookGenre bookGenre, @Param("paramOrder") String propertyName);
 	
-	@Query("select distinct l from Book l where l.genre = ?1 order by ?2")
+	@Query("select distinct b from Book b where b.genre = ?1 order by ?2")
 	List<Book> findByGenrePositionalParam(BookGenre bookGenre, String propertyName);
 	
 	@Modifying
 	@Transactional
 	@Query("DELETE FROM Book WHERE genre = ?1")
-	void deleteByGenero(BookGenre bookGenre);
+	void deleteByGenre(BookGenre bookGenre);
 	
 	@Modifying
 	@Transactional
