@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import io.github.library.libraryapi.controller.DTO.AuthorDTO;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import io.github.library.libraryapi.model.Author;
@@ -21,12 +23,12 @@ public class AuthorService {
         return authorRepository.save(author);
     }
 
-    public void delete(Author author) {
-        authorRepository.delete(author);
-    }
-
     public Optional<Author> findById(UUID id) {
         return authorRepository.findById(id);
+    }
+
+    public void delete(Author author) {
+        authorRepository.delete(author);
     }
 
     public List<Author> search(String name, String nationality) {
@@ -42,5 +44,20 @@ public class AuthorService {
             return authorRepository.findByNationality(nationality);
         }
         return authorRepository.findAll();
+    }
+
+    public Author updateAuthor(UUID authorId, AuthorDTO authorDTO) {
+        Optional<Author> authorOptional = authorRepository.findById(authorId);
+
+        if (authorOptional.isEmpty()) {
+            throw new EntityNotFoundException("Author not found with id: " + authorId);
+        }
+
+        Author author = authorOptional.get();
+        author.setName(authorDTO.name());
+        author.setNationality(authorDTO.nationality());
+        author.setBirthDate(authorDTO.birthDate());
+
+        return authorRepository.save(author);
     }
 }

@@ -3,6 +3,7 @@ package io.github.library.libraryapi.controller;
 import io.github.library.libraryapi.controller.DTO.AuthorDTO;
 import io.github.library.libraryapi.model.Author;
 import io.github.library.libraryapi.service.AuthorService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -63,8 +64,21 @@ public class AuthorController {
         List<Author> result = authorService.search(name, nationality);
         List<AuthorDTO> list =
                 result.
-                stream()
-                .map(author -> new AuthorDTO(author.getId(), author.getName(), author.getBirthDate(), author.getNationality())).toList();
+                        stream()
+                        .map(author -> new AuthorDTO(author.getId(), author.getName(), author.getBirthDate(), author.getNationality())).toList();
         return ResponseEntity.ok(list);
+    }
+
+    @PutMapping("{id}")
+    public ResponseEntity<Void> updateAuthor(@PathVariable("id") String id, @RequestBody AuthorDTO authorDTO) {
+        try {
+            var authorId = UUID.fromString(id);
+            authorService.updateAuthor(authorId, authorDTO);
+            return ResponseEntity.noContent().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }
