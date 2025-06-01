@@ -1,6 +1,8 @@
 package io.github.library.libraryapi.controller;
 
 import io.github.library.libraryapi.controller.DTO.AuthorDTO;
+import io.github.library.libraryapi.controller.DTO.ResponseError;
+import io.github.library.libraryapi.exceptions.DuplicateEntryException;
 import io.github.library.libraryapi.model.Author;
 import io.github.library.libraryapi.service.AuthorService;
 import jakarta.persistence.EntityNotFoundException;
@@ -24,13 +26,18 @@ public class AuthorController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> save(@RequestBody AuthorDTO author) {
-        Author authorEntity = author.mapToAuthor();
-        authorService.save(authorEntity);
+    public ResponseEntity<Object> save(@RequestBody AuthorDTO authorDTO) {
+        try {
+            Author authorEntity = authorService.save(authorDTO);
 
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(authorEntity.getId()).toUri();
-        return ResponseEntity.created(location).build();
+            URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+                    .buildAndExpand(authorEntity.getId()).toUri();
+
+            return ResponseEntity.created(location).build();
+        } catch (DuplicateEntryException e) {
+            var dtoError = ResponseError.conflict(e.getMessage());
+            return ResponseEntity.status(dtoError.status()).body(dtoError);
+        }
     }
 
     @GetMapping("{id}")
@@ -70,11 +77,14 @@ public class AuthorController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Void> updateAuthor(@PathVariable("id") String id, @RequestBody AuthorDTO authorDTO) {
+    public ResponseEntity<Object> updateAuthor(@PathVariable("id") String id, @RequestBody AuthorDTO authorDTO) {
         try {
             var authorId = UUID.fromString(id);
             authorService.updateAuthor(authorId, authorDTO);
             return ResponseEntity.noContent().build();
+        } catch (DuplicateEntryException e) {
+            var dtoError = ResponseError.conflict(e.getMessage());
+            return ResponseEntity.status(dtoError.status()).body(dtoError);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         } catch (IllegalArgumentException e) {

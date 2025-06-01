@@ -1,4 +1,7 @@
 package io.github.library.libraryapi.exceptions;
 
-public class duplicateEntryException {
+public class DuplicateEntryException extends RuntimeException{
+    public DuplicateEntryException(String message) {
+        super(message);
+    }
 }

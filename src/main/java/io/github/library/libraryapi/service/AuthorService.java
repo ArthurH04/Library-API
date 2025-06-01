@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import io.github.library.libraryapi.controller.DTO.AuthorDTO;
+import io.github.library.libraryapi.validator.AuthorValidator;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -13,13 +14,17 @@ import io.github.library.libraryapi.repository.AuthorRepository;
 
 @Service
 public class AuthorService {
-    AuthorRepository authorRepository;
+    private final AuthorRepository authorRepository;
+    private final AuthorValidator authorValidator;
 
-    public AuthorService(AuthorRepository autorRepository) {
-        this.authorRepository = autorRepository;
+    public AuthorService(AuthorRepository authorRepository, AuthorValidator authorValidator) {
+        this.authorRepository = authorRepository;
+        this.authorValidator = authorValidator;
     }
 
-    public Author save(Author author) {
+    public Author save(AuthorDTO authorDTO) {
+        Author author = authorDTO.mapToAuthor();
+        authorValidator.validate(author);
         return authorRepository.save(author);
     }
 
@@ -52,12 +57,14 @@ public class AuthorService {
         if (authorOptional.isEmpty()) {
             throw new EntityNotFoundException("Author not found with id: " + authorId);
         }
-
         Author author = authorOptional.get();
         author.setName(authorDTO.name());
         author.setNationality(authorDTO.nationality());
         author.setBirthDate(authorDTO.birthDate());
 
+        authorValidator.validate(author);
         return authorRepository.save(author);
     }
+
+
 }
