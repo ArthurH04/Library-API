@@ -3,10 +3,12 @@ package io.github.library.libraryapi.controller;
 import io.github.library.libraryapi.controller.DTO.AuthorDTO;
 import io.github.library.libraryapi.controller.DTO.ResponseError;
 import io.github.library.libraryapi.exceptions.DuplicateEntryException;
+import io.github.library.libraryapi.exceptions.OperationNotAllowedException;
 import io.github.library.libraryapi.model.Author;
 import io.github.library.libraryapi.service.AuthorService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -54,7 +56,9 @@ public class AuthorController {
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Void> delete(@PathVariable("id") String id) {
+    public ResponseEntity<Object> delete(@PathVariable("id") String id) {
+
+        try{
         var authorId = UUID.fromString(id);
         Optional<Author> authorOptional = authorService.findById(authorId);
         if (authorOptional.isEmpty()) {
@@ -62,6 +66,10 @@ public class AuthorController {
         }
         authorService.delete(authorOptional.get());
         return ResponseEntity.noContent().build();
+        }catch (OperationNotAllowedException e){
+            var errorResponse = ResponseError.defaultResponse(e.getMessage());
+            return ResponseEntity.status(errorResponse.status()).body(errorResponse);
+        }
     }
 
     @GetMapping

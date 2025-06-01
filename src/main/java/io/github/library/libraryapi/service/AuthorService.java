@@ -5,6 +5,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 import io.github.library.libraryapi.controller.DTO.AuthorDTO;
+import io.github.library.libraryapi.exceptions.OperationNotAllowedException;
+import io.github.library.libraryapi.model.Book;
+import io.github.library.libraryapi.repository.BookRepository;
 import io.github.library.libraryapi.validator.AuthorValidator;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
@@ -16,10 +19,12 @@ import io.github.library.libraryapi.repository.AuthorRepository;
 public class AuthorService {
     private final AuthorRepository authorRepository;
     private final AuthorValidator authorValidator;
+    private final BookRepository bookRepository;
 
-    public AuthorService(AuthorRepository authorRepository, AuthorValidator authorValidator) {
+    public AuthorService(AuthorRepository authorRepository, AuthorValidator authorValidator, BookRepository bookRepository) {
         this.authorRepository = authorRepository;
         this.authorValidator = authorValidator;
+        this.bookRepository = bookRepository;
     }
 
     public Author save(AuthorDTO authorDTO) {
@@ -33,6 +38,9 @@ public class AuthorService {
     }
 
     public void delete(Author author) {
+        if(hasABook(author)){
+throw new OperationNotAllowedException("The author has registered books");
+        }
         authorRepository.delete(author);
     }
 
@@ -66,5 +74,7 @@ public class AuthorService {
         return authorRepository.save(author);
     }
 
-
+    public boolean hasABook(Author author) {
+        return bookRepository.existsByAuthor(author);
+    }
 }
