@@ -7,8 +7,8 @@ import io.github.library.libraryapi.exceptions.OperationNotAllowedException;
 import io.github.library.libraryapi.model.Author;
 import io.github.library.libraryapi.service.AuthorService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -16,7 +16,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("authors")
@@ -28,7 +27,7 @@ public class AuthorController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> save(@RequestBody AuthorDTO authorDTO) {
+    public ResponseEntity<Object> save(@RequestBody @Valid AuthorDTO authorDTO) {
         try {
             Author authorEntity = authorService.save(authorDTO);
 

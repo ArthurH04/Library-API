@@ -38,8 +38,8 @@ public class AuthorService {
     }
 
     public void delete(Author author) {
-        if(hasABook(author)){
-throw new OperationNotAllowedException("The author has registered books");
+        if (hasABook(author)) {
+            throw new OperationNotAllowedException("The author has registered books");
         }
         authorRepository.delete(author);
     }
