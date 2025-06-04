@@ -75,7 +75,7 @@ public class AuthorController {
     public ResponseEntity<List<AuthorDTO>> searchAuthors(
             @RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "nationality", required = false) String nationality) {
-        List<Author> result = authorService.search(name, nationality);
+        List<Author> result = authorService.searchByExample(name, nationality);
         List<AuthorDTO> list =
                 result.
                         stream()

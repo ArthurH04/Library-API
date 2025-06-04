@@ -10,6 +10,8 @@ import io.github.library.libraryapi.model.Book;
 import io.github.library.libraryapi.repository.BookRepository;
 import io.github.library.libraryapi.validator.AuthorValidator;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 
 import io.github.library.libraryapi.model.Author;
@@ -44,7 +46,7 @@ public class AuthorService {
         authorRepository.delete(author);
     }
 
-    public List<Author> search(String name, String nationality) {
+   /* public List<Author> search(String name, String nationality) {
         if (name != null && nationality != null) {
             return authorRepository.findByNameAndNationality(name, nationality);
         }
@@ -57,6 +59,21 @@ public class AuthorService {
             return authorRepository.findByNationality(nationality);
         }
         return authorRepository.findAll();
+    }*/
+
+    public List<Author> searchByExample(String name, String nationality) {
+        Author author = new Author();
+        author.setName(name);
+        author.setNationality(nationality);
+
+        ExampleMatcher exampleMatcher = ExampleMatcher
+                .matching()
+                .withIgnoreNullValues()
+                .withIgnoreCase()
+                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
+
+        Example<Author> authorExample = Example.of(author, exampleMatcher);
+        return authorRepository.findAll(authorExample);
     }
 
     public Author updateAuthor(UUID authorId, AuthorDTO authorDTO) {
