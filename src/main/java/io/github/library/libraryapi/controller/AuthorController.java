@@ -4,6 +4,7 @@ import io.github.library.libraryapi.controller.DTO.AuthorDTO;
 import io.github.library.libraryapi.controller.DTO.ResponseError;
 import io.github.library.libraryapi.exceptions.DuplicateEntryException;
 import io.github.library.libraryapi.exceptions.OperationNotAllowedException;
+import io.github.library.libraryapi.mappers.AuthorMapper;
 import io.github.library.libraryapi.model.Author;
 import io.github.library.libraryapi.service.AuthorService;
 import jakarta.persistence.EntityNotFoundException;

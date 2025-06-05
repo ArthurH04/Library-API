@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import io.github.library.libraryapi.controller.DTO.AuthorDTO;
 import io.github.library.libraryapi.exceptions.OperationNotAllowedException;
+import io.github.library.libraryapi.mappers.AuthorMapper;
 import io.github.library.libraryapi.model.Book;
 import io.github.library.libraryapi.repository.BookRepository;
 import io.github.library.libraryapi.validator.AuthorValidator;
@@ -22,15 +23,18 @@ public class AuthorService {
     private final AuthorRepository authorRepository;
     private final AuthorValidator authorValidator;
     private final BookRepository bookRepository;
+    private final AuthorMapper authorMapper;
 
-    public AuthorService(AuthorRepository authorRepository, AuthorValidator authorValidator, BookRepository bookRepository) {
+
+    public AuthorService(AuthorRepository authorRepository, AuthorValidator authorValidator, BookRepository bookRepository, AuthorMapper authorMapper) {
         this.authorRepository = authorRepository;
         this.authorValidator = authorValidator;
         this.bookRepository = bookRepository;
+        this.authorMapper = authorMapper;
     }
 
     public Author save(AuthorDTO authorDTO) {
-        Author author = authorDTO.mapToAuthor();
+        Author author = authorMapper.toEntity(authorDTO);
         authorValidator.validate(author);
         return authorRepository.save(author);
     }

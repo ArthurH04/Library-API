@@ -22,15 +22,6 @@ public record AuthorDTO(UUID id,
                         @Size(min = 2, max = 100, message = "The field must be between {min} and {max} characters long")
                         String nationality) {
 
-    public Author mapToAuthor() {
-        Author author = new Author();
-        author.setName(this.name);
-        author.setBirthDate(this.birthDate);
-        author.setNationality(this.nationality);
-
-        return author;
-    }
-
     @Override
     public String toString() {
         return "\nName: " + name + "\nBirth date: " + birthDate + "\nNationality: " + nationality;

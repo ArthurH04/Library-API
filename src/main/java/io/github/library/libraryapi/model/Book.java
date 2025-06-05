@@ -2,26 +2,21 @@ package io.github.library.libraryapi.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Table(name = "book")
 @Data
 @ToString(exclude = "author")
+@EntityListeners(AuditingEntityListener.class)
 public class Book {
 
 	@Id
@@ -48,9 +43,19 @@ public class Book {
 	// Default = eager
 	@ManyToOne(//cascade = CascadeType.ALL
 			fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_author")
+    @JoinColumn(name = "author_id")
     private Author author;
-	
+
+	@CreatedDate
+	@Column(name = "register_date")
+	private LocalDateTime registerDate;
+
+	@LastModifiedDate
+	@Column(name = "update_date")
+	private LocalDateTime updateDate;
+
+	@Column(name = "user_id")
+	private UUID user_id;
 	
 
 }
