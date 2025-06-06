@@ -22,9 +22,11 @@ import java.util.UUID;
 @RequestMapping("authors")
 public class AuthorController {
     AuthorService authorService;
+    AuthorMapper authorMapper;
 
-    public AuthorController(AuthorService authorService) {
+    public AuthorController(AuthorService authorService, AuthorMapper authorMapper) {
         this.authorService = authorService;
+        this.authorMapper = authorMapper;
     }
 
     @PostMapping
@@ -45,14 +47,10 @@ public class AuthorController {
     @GetMapping("{id}")
     public ResponseEntity<AuthorDTO> getDetails(@PathVariable("id") String id) {
         var authorId = UUID.fromString(id);
-        Optional<Author> authorOptional = authorService.findById(authorId);
-        if (authorOptional.isPresent()) {
-            Author author = authorOptional.get();
-            AuthorDTO dto = new AuthorDTO(author.getId(), author.getName(), author.getBirthDate(),
-                    author.getNationality());
+        return authorService.findById(authorId).map(author -> {
+            AuthorDTO dto = authorMapper.toDTO(author);
             return ResponseEntity.ok(dto);
-        }
-        return ResponseEntity.notFound().build();
+        }).orElseGet( () -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("{id}")
@@ -80,7 +78,7 @@ public class AuthorController {
         List<AuthorDTO> list =
                 result.
                         stream()
-                        .map(author -> new AuthorDTO(author.getId(), author.getName(), author.getBirthDate(), author.getNationality())).toList();
+                        .map(authorMapper::toDTO).toList();
         return ResponseEntity.ok(list);
     }
 

@@ -25,40 +25,17 @@ public class BookRepositoryTest {
 	@Autowired
 	AuthorRepository authorRepository;
 
-	List<String> names = new ArrayList<>(
-			Arrays.asList("Elon", "Bill", "Steve", "Mark", "Jeff", "Aurora", "Steve", "Henry"));
-	List<String> books = new ArrayList<>(
-			Arrays.asList("Book A", "Book B", "Book C", "Book D", "Book E", "Book F", "Book G", "Book H"));
-
 	@Test
 	public void saveTest() {
-
-		Random random = new Random();
-
-		String randomNames = names.get(random.nextInt(names.size()));
-		String randomBooks = books.get(random.nextInt(books.size()));
-
-		BookGenre[] genre = BookGenre.values();
-		int randomIndex = random.nextInt(genre.length);
-
-		BookGenre randomGenre = genre[randomIndex];
-
-		Author author = new Author();
-		author.setName(randomNames);
-		author.setNationality("Brazilian");
-		author.setBirthDate(LocalDate.of(1970, 1, 1));
-
-		authorRepository.save(author);
-
 		Book book = new Book();
 		book.setIsbn("12345");
-		book.setTitle(randomBooks);
+		book.setTitle("Star Wars");
 		book.setPublicationDate(LocalDate.of(2000, 1, 1));
-		book.setGenre(randomGenre);
+		book.setGenre(BookGenre.FICTION);
 		book.setPrice(BigDecimal.valueOf(39.90));
 
+		Author author = authorRepository.findById(UUID.fromString("7c625dbc-29b3-4722-9595-03bc4309ec49")).orElse(null);
 		book.setAuthor(author);
-
 		var savedBook = bookRepository.save(book);
 		System.out.println("Saved book: " + savedBook);
 	}
