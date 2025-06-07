@@ -1,6 +1,7 @@
 package io.github.library.libraryapi.repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -56,6 +57,7 @@ public interface BookRepository extends JpaRepository<Book, UUID> {
 	@Query("UPDATE Book SET title = ?1 WHERE id = ?2")
 	void updateTitle(String title, UUID id);
 
-
 	boolean existsByAuthor(Author author);
+
+	Optional<Book> findByIsbn(String isbn);
 }

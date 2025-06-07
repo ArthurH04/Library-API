@@ -6,32 +6,29 @@ import io.github.library.libraryapi.model.Author;
 import io.github.library.libraryapi.model.Book;
 import io.github.library.libraryapi.repository.AuthorRepository;
 import io.github.library.libraryapi.repository.BookRepository;
+import io.github.library.libraryapi.validator.BookValidator;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class BookService {
     private final BookRepository bookRepository;
-    private final AuthorRepository authorRepository;
-    private final BookMapper bookMapper;
+    private final BookValidator bookValidator;
 
-    public BookService(BookRepository bookRepository, AuthorRepository authorRepository, BookMapper bookMapper) {
+    public BookService(BookRepository bookRepository, BookValidator bookValidator) {
         this.bookRepository = bookRepository;
-        this.authorRepository = authorRepository;
-        this.bookMapper = bookMapper;
+        this.bookValidator = bookValidator;
     }
 
-
-    public Book save(BookRegisterDTO bookDTO){
-        Book book = bookMapper.toEntity(bookDTO);
-        UUID authorId = bookDTO.author_id();
-        Author author = authorRepository.findById(authorId)
-                .orElseThrow(() -> new IllegalArgumentException("Author not found with id: " + authorId));
-
-        book.setAuthor(author);
-
+    public Book save(Book book) {
+        bookValidator.validate(book);
         return bookRepository.save(book);
+    }
+
+    public Optional<Book> findById(UUID id) {
+        return bookRepository.findById(id);
     }
 
 
