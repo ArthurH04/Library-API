@@ -31,7 +31,7 @@ public class AuthorController implements GenericController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> save(@RequestBody @Valid AuthorDTO authorDTO) {
+    public ResponseEntity<Void> save(@RequestBody @Valid AuthorDTO authorDTO) {
 
         Author authorEntity = authorService.save(authorDTO);
         URI location = getLocation(authorEntity.getId());
@@ -49,7 +49,7 @@ public class AuthorController implements GenericController {
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Object> delete(@PathVariable("id") String id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") String id) {
 
         var authorId = UUID.fromString(id);
         Optional<Author> authorOptional = authorService.findById(authorId);
@@ -73,7 +73,7 @@ public class AuthorController implements GenericController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Object> updateAuthor(@PathVariable("id") String id, @RequestBody @Valid AuthorDTO authorDTO) {
+    public ResponseEntity<Void> updateAuthor(@PathVariable("id") String id, @RequestBody @Valid AuthorDTO authorDTO) {
         try {
             var authorId = UUID.fromString(id);
             authorService.updateAuthor(authorId, authorDTO);
