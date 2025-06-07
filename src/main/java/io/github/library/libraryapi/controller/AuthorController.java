@@ -17,10 +17,11 @@ import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("authors")
-public class AuthorController {
+public class AuthorController implements GenericController {
     AuthorService authorService;
     AuthorMapper authorMapper;
 
@@ -31,17 +32,11 @@ public class AuthorController {
 
     @PostMapping
     public ResponseEntity<Object> save(@RequestBody @Valid AuthorDTO authorDTO) {
-        try {
-            Author authorEntity = authorService.save(authorDTO);
 
-            URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                    .buildAndExpand(authorEntity.getId()).toUri();
+        Author authorEntity = authorService.save(authorDTO);
+        URI location = getLocation(authorEntity.getId());
+        return ResponseEntity.created(location).build();
 
-            return ResponseEntity.created(location).build();
-        } catch (DuplicateEntryException e) {
-            var dtoError = ResponseError.conflict(e.getMessage());
-            return ResponseEntity.status(dtoError.status()).body(dtoError);
-        }
     }
 
     @GetMapping("{id}")
@@ -50,13 +45,12 @@ public class AuthorController {
         return authorService.findById(authorId).map(author -> {
             AuthorDTO dto = authorMapper.toDTO(author);
             return ResponseEntity.ok(dto);
-        }).orElseGet( () -> ResponseEntity.notFound().build());
+        }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("{id}")
     public ResponseEntity<Object> delete(@PathVariable("id") String id) {
 
-        try{
         var authorId = UUID.fromString(id);
         Optional<Author> authorOptional = authorService.findById(authorId);
         if (authorOptional.isEmpty()) {
@@ -64,10 +58,6 @@ public class AuthorController {
         }
         authorService.delete(authorOptional.get());
         return ResponseEntity.noContent().build();
-        }catch (OperationNotAllowedException e){
-            var errorResponse = ResponseError.defaultResponse(e.getMessage());
-            return ResponseEntity.status(errorResponse.status()).body(errorResponse);
-        }
     }
 
     @GetMapping
@@ -78,7 +68,7 @@ public class AuthorController {
         List<AuthorDTO> list =
                 result.
                         stream()
-                        .map(authorMapper::toDTO).toList();
+                        .map(authorMapper::toDTO).collect(Collectors.toList());
         return ResponseEntity.ok(list);
     }
 
@@ -88,9 +78,6 @@ public class AuthorController {
             var authorId = UUID.fromString(id);
             authorService.updateAuthor(authorId, authorDTO);
             return ResponseEntity.noContent().build();
-        } catch (DuplicateEntryException e) {
-            var dtoError = ResponseError.conflict(e.getMessage());
-            return ResponseEntity.status(dtoError.status()).body(dtoError);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         } catch (IllegalArgumentException e) {
