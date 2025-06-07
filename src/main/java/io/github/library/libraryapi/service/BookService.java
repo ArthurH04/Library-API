@@ -31,5 +31,7 @@ public class BookService {
         return bookRepository.findById(id);
     }
 
-
+    public void delete(Book book) {
+        bookRepository.delete(book);
+    }
 }
