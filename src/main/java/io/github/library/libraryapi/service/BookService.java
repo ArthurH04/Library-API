@@ -1,10 +1,14 @@
 package io.github.library.libraryapi.service;
 
+import io.github.library.libraryapi.controller.DTO.BookRegisterDTO;
+import io.github.library.libraryapi.model.Author;
 import io.github.library.libraryapi.model.Book;
 import io.github.library.libraryapi.model.BookGenre;
+import io.github.library.libraryapi.repository.AuthorRepository;
 import io.github.library.libraryapi.repository.BookRepository;
 import io.github.library.libraryapi.repository.specs.BookSpecs;
 import io.github.library.libraryapi.validator.BookValidator;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -18,10 +22,12 @@ import static io.github.library.libraryapi.repository.specs.BookSpecs.*;
 public class BookService {
     private final BookRepository bookRepository;
     private final BookValidator bookValidator;
+    private final AuthorRepository authorRepository;
 
-    public BookService(BookRepository bookRepository, BookValidator bookValidator) {
+    public BookService(BookRepository bookRepository, BookValidator bookValidator, AuthorRepository authorRepository) {
         this.bookRepository = bookRepository;
         this.bookValidator = bookValidator;
+        this.authorRepository = authorRepository;
     }
 
     public Book save(Book book) {
@@ -61,4 +67,24 @@ public class BookService {
         }
         return bookRepository.findAll(specs);
     }
+
+    public Book updateBook(UUID id, BookRegisterDTO bookRegisterDTO) {
+        Optional<Book> bookOptional = bookRepository.findById(id);
+
+        if (bookOptional.isEmpty()) {
+            throw new EntityNotFoundException("Book not found with id: " + id);
+        }
+
+        Author author = authorRepository.findById(bookRegisterDTO.author_id())
+                .orElseThrow(() -> new EntityNotFoundException("Author not found with id: " + bookRegisterDTO.author_id()));
+
+        Book book = bookOptional.get();
+        book.setPublicationDate(bookRegisterDTO.publicationDate());
+        book.setIsbn(bookRegisterDTO.isbn());
+        book.setPrice(bookRegisterDTO.price());
+        book.setGenre(bookRegisterDTO.genre());
+        book.setTitle(bookRegisterDTO.title());
+        book.setAuthor(author);
+        bookValidator.validate(book);
+        return bookRepository.save(book);}
 }

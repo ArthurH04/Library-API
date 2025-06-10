@@ -75,4 +75,17 @@ public class BookController implements GenericController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @PutMapping("{id}")
+    public ResponseEntity<Void> updateBook(@PathVariable("id") String id, @RequestBody @Valid BookRegisterDTO bookRegisterDTO) {
+        try{
+            UUID bookId = UUID.fromString(id);
+            bookService.updateBook(bookId, bookRegisterDTO);
+            return ResponseEntity.noContent().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }
