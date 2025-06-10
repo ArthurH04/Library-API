@@ -6,12 +6,16 @@ import io.github.library.libraryapi.controller.DTO.ResponseError;
 import io.github.library.libraryapi.exceptions.DuplicateEntryException;
 import io.github.library.libraryapi.mappers.BookMapper;
 import io.github.library.libraryapi.model.Book;
+import io.github.library.libraryapi.model.BookGenre;
 import io.github.library.libraryapi.service.BookService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("books")
@@ -52,5 +56,23 @@ public class BookController implements GenericController {
         }
         bookService.delete(bookOptional.get());
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<BookSearchResultDTO>> searchBooks(
+            @RequestParam(value = "isbn" , required = false) String isbn,
+            @RequestParam(value = "title" , required = false) String title,
+            @RequestParam(value = "authorName" , required = false) String authorName,
+            @RequestParam(value = "genre" , required = false) BookGenre genre,
+            @RequestParam(value = "publicationDate" , required = false) Integer publicationDate) {
+        try {
+            List<Book> result = bookService.searchByExample(isbn, title, authorName, genre, publicationDate);
+            List<BookSearchResultDTO> list = result.stream().map(bookMapper::toDto).collect(Collectors.toList());
+            return ResponseEntity.ok(list);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }
