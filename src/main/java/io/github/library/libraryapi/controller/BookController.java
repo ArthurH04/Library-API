@@ -2,20 +2,17 @@ package io.github.library.libraryapi.controller;
 
 import io.github.library.libraryapi.controller.DTO.BookRegisterDTO;
 import io.github.library.libraryapi.controller.DTO.BookSearchResultDTO;
-import io.github.library.libraryapi.controller.DTO.ResponseError;
-import io.github.library.libraryapi.exceptions.DuplicateEntryException;
 import io.github.library.libraryapi.mappers.BookMapper;
 import io.github.library.libraryapi.model.Book;
 import io.github.library.libraryapi.model.BookGenre;
 import io.github.library.libraryapi.service.BookService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("books")
@@ -59,16 +56,19 @@ public class BookController implements GenericController {
     }
 
     @GetMapping
-    public ResponseEntity<List<BookSearchResultDTO>> searchBooks(
+    public ResponseEntity<Page<BookSearchResultDTO>> searchBooks(
             @RequestParam(value = "isbn" , required = false) String isbn,
             @RequestParam(value = "title" , required = false) String title,
             @RequestParam(value = "authorName" , required = false) String authorName,
             @RequestParam(value = "genre" , required = false) BookGenre genre,
-            @RequestParam(value = "publicationDate" , required = false) Integer publicationDate) {
+            @RequestParam(value = "publicationDate" , required = false) Integer publicationDate,
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "size", defaultValue = "10") Integer size)
+    {
         try {
-            List<Book> result = bookService.searchByExample(isbn, title, authorName, genre, publicationDate);
-            List<BookSearchResultDTO> list = result.stream().map(bookMapper::toDto).collect(Collectors.toList());
-            return ResponseEntity.ok(list);
+            Page<Book> result = bookService.searchByExample(isbn, title, authorName, genre, publicationDate, page, size);
+            Page<BookSearchResultDTO> map = result.map(bookMapper::toDto);
+            return ResponseEntity.ok(map);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.noContent().build();
         } catch (IllegalArgumentException e) {

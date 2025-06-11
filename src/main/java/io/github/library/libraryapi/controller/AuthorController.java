@@ -9,6 +9,7 @@ import io.github.library.libraryapi.model.Author;
 import io.github.library.libraryapi.service.AuthorService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -61,15 +62,16 @@ public class AuthorController implements GenericController {
     }
 
     @GetMapping
-    public ResponseEntity<List<AuthorDTO>> searchAuthors(
+    public ResponseEntity<Page<AuthorDTO>> searchAuthors(
             @RequestParam(value = "name", required = false) String name,
-            @RequestParam(value = "nationality", required = false) String nationality) {
-        List<Author> result = authorService.searchByExample(name, nationality);
-        List<AuthorDTO> list =
-                result.
-                        stream()
-                        .map(authorMapper::toDTO).collect(Collectors.toList());
-        return ResponseEntity.ok(list);
+            @RequestParam(value = "nationality", required = false) String nationality,
+            @RequestParam(value = "page", defaultValue = "0") Integer page,
+            @RequestParam(value = "size", defaultValue = "10") Integer size) {
+        {
+            Page<Author> result = authorService.searchByExample(name, nationality, page, size);
+            Page<AuthorDTO> map = result.map(authorMapper::toDTO);
+            return ResponseEntity.ok(map);
+        }
     }
 
     @PutMapping("{id}")

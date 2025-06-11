@@ -9,6 +9,9 @@ import io.github.library.libraryapi.repository.BookRepository;
 import io.github.library.libraryapi.repository.specs.BookSpecs;
 import io.github.library.libraryapi.validator.BookValidator;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +46,7 @@ public class BookService {
         bookRepository.delete(book);
     }
 
-    public List<Book> searchByExample(String isbn, String title, String authorName, BookGenre genre, Integer publicationDate) {
+    public Page<Book> searchByExample(String isbn, String title, String authorName, BookGenre genre, Integer publicationDate, Integer page, Integer size) {
 
         // SELECT * FROM book WHERE 0 = 0
         Specification<Book> specs = Specification.where((root, query, criteriaBuilder) -> criteriaBuilder.conjunction());
@@ -65,7 +68,10 @@ public class BookService {
         if (publicationDate != null && publicationDate > 0) {
             specs = specs.and(publicationDate(publicationDate));
         }
-        return bookRepository.findAll(specs);
+
+        Pageable pageRequest = PageRequest.of(page, size);
+
+        return bookRepository.findAll(specs, pageRequest);
     }
 
     public Book updateBook(UUID id, BookRegisterDTO bookRegisterDTO) {
