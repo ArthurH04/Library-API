@@ -1,0 +1,25 @@
+CREATE TABLE author(
+id uuid not null primary key,
+name varchar(100) not null,
+birth_date date not null,
+nationality varchar(50) not null,
+register_date timestamp,
+update_date timestamp,
+user_id uuid
+);
+
+CREATE TABLE book(
+id uuid not null primary key,
+isbn varchar(20) not null unique,
+title varchar(150) not null,
+publication_date date not null,
+genre varchar(30) not null,
+price numeric(18, 2),
+register_date timestamp,
+update_date timestamp,
+user_id uuid,
+author_id uuid not null references author(id),
+constraint check_genre check(genre in ('FICTION', 'FANTASY', 'MYSTERY', 'ACTION', 'ADVENTURE'))
+);
+
+SELECT * FROM author
