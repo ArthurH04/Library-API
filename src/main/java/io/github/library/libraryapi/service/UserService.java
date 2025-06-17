@@ -1,5 +1,6 @@
 package io.github.library.libraryapi.service;
 
+import io.github.library.libraryapi.exceptions.DuplicateEntryException;
 import io.github.library.libraryapi.model.Role;
 import io.github.library.libraryapi.model.User;
 import io.github.library.libraryapi.repository.UserRepository;
@@ -24,6 +25,12 @@ public class UserService {
         String password = user.getPassword();
         user.setPassword(passwordEncoder.encode(password));
         user.setRoles(List.of(Role.USER.name()));
+
+        boolean exists = userRepository.existsByLogin(user.getLogin());
+        if (exists) {
+            throw new DuplicateEntryException("User already exists with login: " + user.getLogin());
+        }
+
         return userRepository.save(user);
     }
 
