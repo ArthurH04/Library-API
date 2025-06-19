@@ -6,6 +6,7 @@ import io.github.library.libraryapi.exceptions.DuplicateEntryException;
 import io.github.library.libraryapi.exceptions.InvalidFieldException;
 import io.github.library.libraryapi.exceptions.OperationNotAllowedException;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -41,6 +42,12 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     public ResponseError handleUnaddressedError(InvalidFieldException e) {
         return new ResponseError(HttpStatus.UNPROCESSABLE_ENTITY.value(), "Validation error", List.of(new CustomFieldError(e.getField(), e.getMessage())));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ResponseError handleAccessDeniedException(AccessDeniedException e) {
+        return new ResponseError(HttpStatus.FORBIDDEN.value(), "You do not have permission to perform this operation", List.of());
     }
 
     @ExceptionHandler(RuntimeException.class)

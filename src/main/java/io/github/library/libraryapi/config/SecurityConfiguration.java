@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -17,6 +18,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfiguration {
 
     @Bean
@@ -29,21 +31,8 @@ public class SecurityConfiguration {
                         .permitAll()
                 )
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/login/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/users/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/users/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/users/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/users/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/users").hasRole("ADMIN")
-
-                        .requestMatchers(HttpMethod.GET, "/authors/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/authors/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/authors/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/authors/**").hasRole("ADMIN")
-
-                        .requestMatchers(HttpMethod.GET, "/books/**").hasAnyRole("USER", "ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/books/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/books/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/books/**").hasRole("ADMIN")
 
                         .anyRequest().authenticated()
                 )

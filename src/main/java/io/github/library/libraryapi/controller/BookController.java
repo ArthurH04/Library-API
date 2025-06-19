@@ -10,6 +10,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -27,6 +28,7 @@ public class BookController implements GenericController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<Object> save(@RequestBody @Valid BookRegisterDTO bookDTO) {
         Book book = bookMapper.toEntity(bookDTO);
         bookService.save(book);
@@ -35,6 +37,7 @@ public class BookController implements GenericController {
     }
 
     @GetMapping("{id}")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<BookSearchResultDTO> getDetails(@PathVariable("id") String id) {
         UUID bookId = UUID.fromString(id);
 
@@ -45,6 +48,7 @@ public class BookController implements GenericController {
     }
 
     @DeleteMapping("{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable("id") String id) {
         UUID bookId = UUID.fromString(id);
         var bookOptional = bookService.findById(bookId);
@@ -56,6 +60,7 @@ public class BookController implements GenericController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<Page<BookSearchResultDTO>> searchBooks(
             @RequestParam(value = "isbn" , required = false) String isbn,
             @RequestParam(value = "title" , required = false) String title,
@@ -77,6 +82,7 @@ public class BookController implements GenericController {
     }
 
     @PutMapping("{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> updateBook(@PathVariable("id") String id, @RequestBody @Valid BookRegisterDTO bookRegisterDTO) {
         try{
             UUID bookId = UUID.fromString(id);
