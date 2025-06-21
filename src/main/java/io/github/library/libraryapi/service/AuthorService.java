@@ -1,21 +1,20 @@
 package io.github.library.libraryapi.service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 import io.github.library.libraryapi.controller.DTO.AuthorDTO;
 import io.github.library.libraryapi.exceptions.OperationNotAllowedException;
 import io.github.library.libraryapi.mappers.AuthorMapper;
-import io.github.library.libraryapi.model.Book;
+import io.github.library.libraryapi.model.Author;
+import io.github.library.libraryapi.model.User;
+import io.github.library.libraryapi.repository.AuthorRepository;
 import io.github.library.libraryapi.repository.BookRepository;
+import io.github.library.libraryapi.security.SecurityService;
 import io.github.library.libraryapi.validator.AuthorValidator;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
-import io.github.library.libraryapi.model.Author;
-import io.github.library.libraryapi.repository.AuthorRepository;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class AuthorService {
@@ -23,18 +22,23 @@ public class AuthorService {
     private final AuthorValidator authorValidator;
     private final BookRepository bookRepository;
     private final AuthorMapper authorMapper;
+    private final SecurityService securityService;
 
 
-    public AuthorService(AuthorRepository authorRepository, AuthorValidator authorValidator, BookRepository bookRepository, AuthorMapper authorMapper) {
+    public AuthorService(AuthorRepository authorRepository, AuthorValidator authorValidator, BookRepository bookRepository, AuthorMapper authorMapper, SecurityService securityService) {
         this.authorRepository = authorRepository;
         this.authorValidator = authorValidator;
         this.bookRepository = bookRepository;
         this.authorMapper = authorMapper;
+        this.securityService = securityService;
     }
 
     public Author save(AuthorDTO authorDTO) {
         Author author = authorMapper.toEntity(authorDTO);
+        User user = securityService.getLoggedUser();
+        author.setUser(user);
         authorValidator.validate(author);
+
         return authorRepository.save(author);
     }
 

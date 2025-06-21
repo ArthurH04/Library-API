@@ -18,8 +18,8 @@ import java.util.UUID;
 @RestController
 @RequestMapping("authors")
 public class AuthorController implements GenericController {
-    AuthorService authorService;
-    AuthorMapper authorMapper;
+    private final AuthorService authorService;
+    private final AuthorMapper authorMapper;
 
     public AuthorController(AuthorService authorService, AuthorMapper authorMapper) {
         this.authorService = authorService;
@@ -29,11 +29,9 @@ public class AuthorController implements GenericController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> save(@RequestBody @Valid AuthorDTO authorDTO) {
-
         Author authorEntity = authorService.save(authorDTO);
         URI location = getLocation(authorEntity.getId());
         return ResponseEntity.created(location).build();
-
     }
 
     @GetMapping("{id}")

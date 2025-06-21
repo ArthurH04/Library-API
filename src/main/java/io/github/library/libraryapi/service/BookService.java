@@ -4,9 +4,10 @@ import io.github.library.libraryapi.controller.DTO.BookRegisterDTO;
 import io.github.library.libraryapi.model.Author;
 import io.github.library.libraryapi.model.Book;
 import io.github.library.libraryapi.model.BookGenre;
+import io.github.library.libraryapi.model.User;
 import io.github.library.libraryapi.repository.AuthorRepository;
 import io.github.library.libraryapi.repository.BookRepository;
-import io.github.library.libraryapi.repository.specs.BookSpecs;
+import io.github.library.libraryapi.security.SecurityService;
 import io.github.library.libraryapi.validator.BookValidator;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
@@ -15,7 +16,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,15 +26,19 @@ public class BookService {
     private final BookRepository bookRepository;
     private final BookValidator bookValidator;
     private final AuthorRepository authorRepository;
+    private final SecurityService securityService;
 
-    public BookService(BookRepository bookRepository, BookValidator bookValidator, AuthorRepository authorRepository) {
+    public BookService(BookRepository bookRepository, BookValidator bookValidator, AuthorRepository authorRepository, SecurityService securityService) {
         this.bookRepository = bookRepository;
         this.bookValidator = bookValidator;
         this.authorRepository = authorRepository;
+        this.securityService = securityService;
     }
 
     public Book save(Book book) {
         bookValidator.validate(book);
+        User user = securityService.getLoggedUser();
+        book.setUser(user);
         return bookRepository.save(book);
     }
 
