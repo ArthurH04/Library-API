@@ -28,7 +28,7 @@ public class BookController implements GenericController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Object> save(@RequestBody @Valid BookRegisterDTO bookDTO) {
         Book book = bookMapper.toEntity(bookDTO);
         bookService.save(book);
