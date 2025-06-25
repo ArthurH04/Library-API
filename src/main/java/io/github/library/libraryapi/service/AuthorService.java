@@ -53,21 +53,6 @@ public class AuthorService {
         authorRepository.delete(author);
     }
 
-   /* public List<Author> search(String name, String nationality) {
-        if (name != null && nationality != null) {
-            return authorRepository.findByNameAndNationality(name, nationality);
-        }
-
-        if (name != null) {
-            return authorRepository.findByName(name);
-        }
-
-        if (nationality != null) {
-            return authorRepository.findByNationality(nationality);
-        }
-        return authorRepository.findAll();
-    }*/
-
     public Page<Author> searchByExample(String name, String nationality, Integer page, Integer size) {
         Author author = new Author();
         author.setName(name);
